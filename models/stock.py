@@ -97,7 +97,6 @@ class stockWarehouse(models.Model):
             'color': warehouse.int_type_id.color},context=context)
     	return super(stockWarehouse, self).write(cr, uid, warehouse.id, vals={'qc_type_id':quality_type}, context=context)
 	
-
     @api.multi
     def write(self,vals):
     	for warehouse in self:
@@ -107,23 +106,23 @@ class stockWarehouse(models.Model):
         	#create new sequences
         	int_seq_id = seq_obj.create({'name': warehouse.name + _(' Sequence quality'), 'prefix': warehouse.code + '/QC/', 'padding': 5})
        
-        	#order the picking types with a sequence allowing to have the following suit for each warehouse: reception, internal, pick, pack, ship. 
-        	max_sequence = picking_type_obj.search_read(cr, uid, [], ['sequence'], order='sequence desc')
+        	#order the picking types with a sequence allowing. 
+        	max_sequence = picking_type_obj.search_read(['sequence'], order='sequence desc')
         	max_sequence = max_sequence and max_sequence[0]['sequence'] or 0
         
-    	    	quality_type = picking_type_obj.create(cr,uid,vals={
+    	    	quality_type = picking_type_obj.create({
 		    'name': _('Quality Check'),
 		    'warehouse_id': warehouse.id,
 		    'code': 'internal',
 		    'use_create_lots': False,
 		    'use_existing_lots': True,
-		    'sequence_id': int_seq_id,
+		    'sequence_id': int_seq_id.id,
 		    'default_location_src_id': warehouse.wh_output_stock_loc_id.id,
 		    'default_location_dest_id': warehouse.lot_stock_id.id,
 		    'sequence': max_sequence + 2,
 		    'active':warehouse.reception_steps=='three_steps',
-		    'color': warehouse.int_type_id.color},context=context)
-	    	vals.update({'qc_type_id':quality_type})
+		    'color': warehouse.int_type_id.color})
+	    	vals.update({'qc_type_id':quality_type.id})
 	    if vals.get('code') or vals.get('name'):
 	    	name = warehouse.name
 	    	if vals.get('name'):
