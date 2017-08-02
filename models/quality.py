@@ -26,22 +26,18 @@ class QualityChecking(models.Model):
     @api.depends('quantity','mo_state','quality_line','history_line_reject','history_line_reject.move_status',
     		'quality_line.approved_qty','quality_line.reject_qty','quality_line.state')
     def _get_state(self):
-    	print "1111111111",self.quantity,self.mo_state
 	if self.quantity:
 		self.state='available'
 	elif self.mo_state == 'in_production':
 		self.state='waiting'
 	elif self.mo_state == 'done':
 		flag=True
-		print "133333333333333333",self.history_line_reject
 		for rec in self.history_line_reject:
-			print "66666666",rec.move_status
 			if rec.move_status in ('in_mo','in_po'):
 				flag=False
 				self.state='waiting' 
 		if flag:
 			self.state='complete' 
-		print "------------"
     		
     name = fields.Char('Name', required=True, readonly=True)
     quality_line=fields.One2many('quality.checking.line','quality_id','Quality Line') 
