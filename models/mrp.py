@@ -46,13 +46,9 @@ class mrp_product_produce(osv.osv_memory):
    
     @api.v7
     def do_produce(self, cr, uid, ids, context=None):
-        production_id = context.get('active_id', False)
-        assert production_id, "Production Id should be specified in context as a Active ID."
-        data = self.browse(cr, uid, ids[0], context=context)
+    	data = self.browse(cr, uid, ids[0], context=context)
         context.update({'lot_id':data.lot_id.id})
-        self.pool.get('mrp.production').action_produce(cr, uid, production_id,
-                            data.product_qty, data.mode, data, context=context)
-        return {}
+        return super(mrp_product_produce,self).do_produce(cr, uid, ids, context=context)
 
 class QualityCheckingHistory(models.Model):
     _name = 'quality.checking.line.history'
