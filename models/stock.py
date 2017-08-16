@@ -100,6 +100,7 @@ class stockWarehouse(models.Model):
     @api.multi
     def write(self,vals):
     	for warehouse in self:
+	    active_wh= True if vals.get('reception_steps') == 'three_steps' else False
     	    if not warehouse.qc_type_id:
     	    	seq_obj = self.env['ir.sequence']
         	picking_type_obj = self.env['stock.picking.type']
@@ -107,7 +108,7 @@ class stockWarehouse(models.Model):
         	int_seq_id = seq_obj.create({'name': warehouse.name + _(' Sequence quality'), 'prefix': warehouse.code + '/QC/', 'padding': 5})
        
         	#order the picking types with a sequence allowing. 
-        	max_sequence = picking_type_obj.search_read(['sequence'], order='sequence desc')
+        	max_sequence = picking_type_obj.search_read([],['sequence'], order='sequence desc')
         	max_sequence = max_sequence and max_sequence[0]['sequence'] or 0
         
     	    	quality_type = picking_type_obj.create({
@@ -120,9 +121,14 @@ class stockWarehouse(models.Model):
 		    'default_location_src_id': warehouse.wh_output_stock_loc_id.id,
 		    'default_location_dest_id': warehouse.lot_stock_id.id,
 		    'sequence': max_sequence + 2,
-		    'active':warehouse.reception_steps=='three_steps',
+		    'active':active_wh,
 		    'color': warehouse.int_type_id.color})
 	    	vals.update({'qc_type_id':quality_type.id})
+	    if warehouse.qc_type_id:
+		if vals.get('reception_steps') != 'three_steps':
+			warehouse.qc_type_id.active=False
+		if vals.get('reception_steps') == 'three_steps':
+                        warehouse.qc_type_id.active=True
 	    if vals.get('code') or vals.get('name'):
 	    	name = warehouse.name
 	    	if vals.get('name'):
