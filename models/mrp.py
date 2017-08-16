@@ -27,7 +27,7 @@ class MrpProduction(models.Model):
     	for rec in self:
     	    search_id=self.env['quality.checking'].search([('source','=',rec.name)])
     	    if not search_id:
-    	    	self.env['stock.picking'].sudo().browse(picking_id).write({'packaging':rec.n_packaging.id})
+    	    	#self.env['stock.picking'].sudo().browse(picking_id).write({'packaging':rec.n_packaging.id})
     		vals={'source':rec.name,'product_id':rec.product_id.id,'mrp_id':rec.id,'picking_id':picking_id,
     			'quality_line':[(0,0,{'name':rec.name,'quantity':production_qty,'mo_state':rec.state,
     				'product_id':rec.product_id.id,'uom_id':rec.product_uom.id,'lot_id':lot_id,
@@ -38,7 +38,7 @@ class MrpProduction(models.Model):
             		'product_id':rec.product_id.id,'uom_id':rec.product_uom.id,'lot_id':lot_id,'state':'available',
             			'n_type':'new'})]}
             	search_id.write(vals)
-    	return super(MrpProduction, self).action_produce(production_qty, production_mode, wiz)
+    	return super(MrpProduction, self).action_produce(production_id,production_qty, production_mode, wiz)
     	
     	
 class mrp_product_produce(osv.osv_memory):
