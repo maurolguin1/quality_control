@@ -70,8 +70,9 @@ class stockWarehouse(models.Model):
     	push_obj=self.env['stock.location.path']
     	warehouse=super(stockWarehouse,self).create(vals)
     	warehouse.wh_qc_stock_loc_id.quality_ck_loc=True
+    	# code for add push method in routes
     	if warehouse.reception_steps=='three_steps':
-    		push_name=str(warehouse.code)+'>> Input -> Quality Control'
+    		push_name=str(warehouse.code)+': Input -> Quality Control'
     		data_obj = self.env['ir.model.data']
     		mo_route = data_obj.get_object_reference('mrp', 'route_warehouse0_manufacture')[1]
     		if mo_route:
@@ -147,4 +148,26 @@ class stockWarehouse(models.Model):
                     name = vals.get('name', warehouse.name)
     		if warehouse.out_type_id:
                     warehouse.qc_type_id.sequence_id.write({'name': name + _(' Sequence quality'), 'prefix': vals.get('code', warehouse.code) + '/QC/'})
+                    
+            # code for Update push method in routes     
+	    if vals.get('reception_steps')=='three_steps':
+    		push_name=str(warehouse.code)+': Input -> Quality Control'
+    		data_obj = self.env['ir.model.data']
+    		mo_route = data_obj.get_object_reference('mrp', 'route_warehouse0_manufacture')[1]
+    		if mo_route:
+    			quality_route=push_obj.search([('route_id','=',mo_route),('location_from_id','=',warehouse.wh_qc_stock_loc_id.id),('picking_type_id','=',warehouse.qc_type_id.id)])
+    			if not quality_route:
+    				push_obj.create({'name':push_name,'route_id':mo_route,'location_from_id':warehouse.wh_qc_stock_loc_id.id,
+    							'location_dest_id':warehouse.lot_stock_id.id,'picking_type_id':warehouse.qc_type_id.id})
+			else:
+				quality_route.active=True
+	    elif warehouse.reception_steps != 'three_steps' or vals.get('reception_steps') !='three_steps':
+		data_obj = self.env['ir.model.data']
+    		mo_route = data_obj.get_object_reference('mrp', 'route_warehouse0_manufacture')[1]
+    		if mo_route:
+    			quality_route=push_obj.search([('route_id','=',mo_route),('location_from_id','=',warehouse.wh_qc_stock_loc_id.id),('picking_type_id','=',warehouse.qc_type_id.id)])	    
+			if quality_route:
+				quality_route.active=True
+    	#self.env['stock.location.path'].search([('location_from_id','=',warehouse.wh_qc_stock_loc_id.id),('location_dest_id','=',warehouse.lot_stock_id),('picking_type_id','=',warehouse.qc_type_id.id)])
+
 	return super(stockWarehouse,self).write(vals)
