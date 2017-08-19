@@ -220,11 +220,13 @@ class QualityInspection(models.Model):
 	 	    		operation.qty_done=approve_qty
 	 	    inspection.quality_id.picking_id.do_new_transfer()
 	 	    if flag:
+	 	    	print "999999999999999"
 	 	    	wiz_immediate_id=self.env['stock.immediate.transfer'].search([('pick_id','=',inspection.quality_id.picking_id.id)])
 	 	    	if wiz_immediate_id:
 	 	    		wiz_immediate_id.process()
 	 	    	else:	
 		    		wiz_backorder_id=self.env['stock.backorder.confirmation'].search([('pick_id','=',inspection.quality_id.picking_id.id)])
+		    		print "5555555",wiz_backorder_id,inspection.quality_id.picking_id
 		    		wiz_backorder_id.process()
 	    	    inspection.quality_id.picking_id = self.env['stock.picking'].search([('backorder_id', '=', inspection.quality_id.picking_id.id)],limit=1).id
             return True

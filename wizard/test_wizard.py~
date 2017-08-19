@@ -5,7 +5,10 @@ from openerp import models, fields, api
 
 
 class QualityScrapDoc(models.TransientModel):
-    """This wizard is used to set documents for Scrap products.
+    """This wizard is used to preset the test for a given
+    inspection. This will fill in the 'test' field, but will
+    also fill in all lines of the inspection with the corresponding lines of
+    the template.
     """
     _name = 'quality.scrap.doc'
 

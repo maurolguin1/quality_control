@@ -71,7 +71,7 @@ class stockWarehouse(models.Model):
     	warehouse=super(stockWarehouse,self).create(vals)
     	warehouse.wh_qc_stock_loc_id.quality_ck_loc=True
     	if warehouse.reception_steps=='three_steps':
-    		push_name=str(warehouse.code)+': Input -> Quality Control'
+    		push_name=str(warehouse.code)+'>> Input -> Quality Control'
     		data_obj = self.env['ir.model.data']
     		mo_route = data_obj.get_object_reference('mrp', 'route_warehouse0_manufacture')[1]
     		if mo_route:

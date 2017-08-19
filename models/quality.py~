@@ -118,7 +118,7 @@ class QualityChecking(models.Model):
 		'views': [(tree_id.id,'tree'),(form_id.id, 'form')],
 		'view_id': tree_id.id,
 		'domain':domain,
-		'target': 'current',
+		'target': 'curent',
 	    }
     	
     	
