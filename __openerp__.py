@@ -28,9 +28,10 @@
         "views/dashboard_view.xml",
         "views/mrp_view.xml",
         'views/stock_view.xml',
+        'res_config_view.xml',
     ],
     "demo": [
-       
+        "demo/quality_control_demo.xml",
     ],
     "installable": True,
 }

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <!-- After installation of the module, open the related menu -->
+        <!--record id="action_client_warehouse_menu" model="ir.actions.client">
+            <field name="name">Open Warehouse Menu</field>
+            <field name="tag">reload</field>
+            <field name="params" eval="{'menu_id': ref('menu_stock_root')}"/>
+        </record>
+        <record id="base.open_menu" model="ir.actions.todo">
+            <field name="action_id" ref="action_client_warehouse_menu"/>
+            <field name="state">open</field>
+        </record-->
+        <record id="view_quality_config_settings" model="ir.ui.view">
+            <field name="name">Quality settings</field>
+            <field name="model">quality.config.settings</field>
+            <field name="arch" type="xml">
+                <form string="Configure" class="oe_form_configuration">
+                    <header>
+                        <button string="Apply" type="object" name="execute" class="oe_highlight"/>
+                        <button string="Cancel" type="object" name="cancel" class="oe_link"/>
+                    </header>
+                    
+                    <group string="Stock Location &amp; Warehouse">
+
+                        <label for="group_quality_adv_location"/>
+                        <div>
+                            <field name="group_quality_adv_location" widget="radio"/>
+                        </div>
+
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_quality_config_settings" model="ir.actions.act_window">
+            <field name="name">Configure</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">quality.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+        </record>
+
+        <menuitem id="menu_quality_config_settings" name="Configuration" parent="main_quality_menu_id"
+            sequence="100" groups="group_quality_check_manager,base.group_configuration"/>
+        <menuitem id="menu_quality_general_settings" name="Settings" parent="menu_quality_config_settings"
+            sequence="0" action="action_quality_config_settings"/>
+    </data>
+</openerp>

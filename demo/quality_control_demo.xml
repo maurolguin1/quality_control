@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data noupdate="1">
+        <record model="quality.test" id="test_1">
+            <field name="name">Generic Test (demo)</field>
+            <field name="inspection_type">generic</field>
+            <field name="active" eval="True" />
+        </record>
+
+        <record model="quality.test.question" id="test_question_1">
+            <field name="name">Overall quality</field>
+            <field name="test" ref="test_1" />
+            <field name="question_type">qualitative</field>
+        </record>
+
+        <record model="quality.test.question.value" id="test_question_value_1">
+            <field name="name">Good</field>
+            <field name="ok" eval="True" />
+            <field name="test_line" ref="test_question_1" />
+        </record>
+
+        <record model="quality.test.question.value" id="test_question_value_2">
+            <field name="name">Bad</field>
+            <field name="ok" eval="False" />
+            <field name="test_line" ref="test_question_1" />
+        </record>
+
+        <record model="quality.test.question" id="test_question_2">
+            <field name="name">Size</field>
+            <field name="test" ref="test_1" />
+            <field name="question_type">quantitative</field>
+            <field name="min_value" eval="1.0" />
+            <field name="max_value" eval="10.0" />
+            <field name="uom_id" ref="product.product_uom_unit" />
+        </record>
+
+    </data>
+</openerp>

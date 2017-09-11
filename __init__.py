@@ -4,3 +4,4 @@
 
 import models
 import wizard
+import res_config

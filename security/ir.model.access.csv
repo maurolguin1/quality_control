@@ -64,7 +64,5 @@ access_stock_production_lot,stock_production_lot,stock.model_stock_production_lo
 ,,,,,,,
 access_mrp_production,mrp_production_quality_user,mrp.model_mrp_production,group_quality_check_user,1,1,0,0
 access_purchase_order,purchase_order_quality_user,purchase.model_purchase_order,group_quality_check_user,1,0,0,0
-access_purchase_requisition,purchase_requisition_quality_user,purchase_requisition.model_purchase_requisition,group_quality_check_user,1,0,0,0
 access_account_journal,account_journal_quality_user,account.model_account_journal,group_quality_check_user,1,0,0,0
 access_account_bank_statement,account_bank_statement_quality_user,account.model_account_bank_statement,group_quality_check_user,1,0,0,0
-access_sale_order,sale_order_quality_user,sale.model_sale_order,group_quality_check_user,1,0,0,0
