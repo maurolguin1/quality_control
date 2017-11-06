@@ -25,19 +25,22 @@ class MrpProduction(models.Model):
     	for move in self.move_created_ids:
     		picking_id=move.move_dest_id.picking_id.id
     	for rec in self:
-    	    search_id=self.env['quality.checking'].search([('source','=',rec.name)])
-    	    if not search_id:
-    	    	#self.env['stock.picking'].sudo().browse(picking_id).write({'packaging':rec.n_packaging.id})
-    		vals={'source':rec.name,'product_id':rec.product_id.id,'mrp_id':rec.id,'picking_id':picking_id,
-    			'quality_line':[(0,0,{'name':rec.name,'quantity':production_qty,'mo_state':rec.state,
-    				'product_id':rec.product_id.id,'uom_id':rec.product_uom.id,'lot_id':lot_id,
-				'state':'available','n_type':'new'})],'uom_id':rec.product_uom.id}
-    		self.env['quality.checking'].create(vals)
-            else:
-            	vals={'quality_line':[(0,0,{'name':rec.name,'quantity':production_qty,'mo_state':rec.state,
-            		'product_id':rec.product_id.id,'uom_id':rec.product_uom.id,'lot_id':lot_id,'state':'available',
-            			'n_type':'new'})]}
-            	search_id.write(vals)
+    	    production_rec=self.env['mrp.production'].search([('id','=',production_id)])
+    	    if production_rec.location_dest_id.quality_ck_loc:
+	    	    search_id=self.env['quality.checking'].search([('source','=',rec.name)])
+	    	    if not search_id:
+	    	    	#self.env['stock.picking'].sudo().browse(picking_id).write({'packaging':rec.n_packaging.id})
+	    		vals={'source':rec.name,'product_id':rec.product_id.id,'mrp_id':rec.id,'picking_id':picking_id,
+	    			'quality_line':[(0,0,{'name':rec.name,'quantity':production_qty,'mo_state':rec.state,
+	    				'product_id':rec.product_id.id,'uom_id':rec.product_uom.id,'lot_id':lot_id,
+					'state':'available','n_type':'new'})],'uom_id':rec.product_uom.id}
+	    		self.env['quality.checking'].create(vals)
+		    else:
+		    	vals={'quality_line':[(0,0,{'name':rec.name,'quantity':production_qty,
+	    					'mo_state':rec.state,'product_id':rec.product_id.id,
+		    				'uom_id':rec.product_uom.id,'lot_id':lot_id,'state':'available',
+		    				'n_type':'new'})]}
+            		search_id.write(vals)
     	return super(MrpProduction, self).action_produce(production_id,production_qty, production_mode, wiz)
     	
     	

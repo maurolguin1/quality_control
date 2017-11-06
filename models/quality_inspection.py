@@ -96,11 +96,10 @@ class QualityInspection(models.Model):
     @api.multi
     @api.onchange('test')
     def onchange_test(self):
-    	for rec in self:
-		new_data=[]
-		if rec.test.test_lines:
-			for line in rec.test.test_lines:
-				data = {
+	new_data=[]
+	if self.test.test_lines:
+		for line in self.test.test_lines:
+			data = {
 				'name': line.name,
 				'test_line': line.id,
 				'notes': line.notes,
@@ -111,17 +110,17 @@ class QualityInspection(models.Model):
 				'question_type': line.question_type,
 				'possible_ql_values': [x.id for x in line.ql_values]
 			}
-			if rec.test.fill_correct_values:
+			if self.test.fill_correct_values:
 				if line.question_type == 'qualitative':	 # Fill with the first correct value found
 					for value in line.ql_values:
 						if value.ok:
-						    data['qualitative_value'] = value.id
-						    break
+					    		data['qualitative_value'] = value.id
+					    		break
 				else: 				# Fill with a value inside the interval
 					data['quantitative_value'] = (line.min_value + line.max_value) * 0.5
 			new_data.append((0, 0, data))
-		rec.inspection_lines.unlink()
-		rec.inspection_lines = new_data
+		self.inspection_lines.unlink()
+		self.inspection_lines = new_data
         
     @api.multi
     def action_confirm(self):

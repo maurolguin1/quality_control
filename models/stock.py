@@ -41,7 +41,6 @@ class stock_move(osv.osv):
 				('printed', '=', False),
                 		('state', 'in', ['draft', 'confirmed', 'waiting', 'partially_available', 'assigned'])], 
 				limit=1, context=context)
-		
         if picks:
             pick = picks[0]
         else:
@@ -149,7 +148,8 @@ class stockWarehouse(models.Model):
     		if warehouse.out_type_id:
                     warehouse.qc_type_id.sequence_id.write({'name': name + _(' Sequence quality'), 'prefix': vals.get('code', warehouse.code) + '/QC/'})
                     
-            # code for Update push method in routes     
+            # code for Update push method in routes 
+            push_obj=self.env['stock.location.path']    
 	    if vals.get('reception_steps')=='three_steps':
     		push_name=str(warehouse.code)+': Input -> Quality Control'
     		data_obj = self.env['ir.model.data']
@@ -157,8 +157,9 @@ class stockWarehouse(models.Model):
     		if mo_route:
     			quality_route=push_obj.search([('route_id','=',mo_route),('location_from_id','=',warehouse.wh_qc_stock_loc_id.id),('picking_type_id','=',warehouse.qc_type_id.id)])
     			if not quality_route:
-    				push_obj.create({'name':push_name,'route_id':mo_route,'location_from_id':warehouse.wh_qc_stock_loc_id.id,
-    							'location_dest_id':warehouse.lot_stock_id.id,'picking_type_id':warehouse.qc_type_id.id})
+    				push_obj.create({'name':push_name,'route_id':mo_route,
+    						'location_from_id':warehouse.wh_qc_stock_loc_id.id, 							'location_dest_id':warehouse.lot_stock_id.id,
+    						'picking_type_id':warehouse.qc_type_id.id})
 			else:
 				quality_route.active=True
 	    elif warehouse.reception_steps != 'three_steps' or vals.get('reception_steps') !='three_steps':
@@ -170,3 +171,17 @@ class stockWarehouse(models.Model):
 				quality_route.active=True
 
 	return super(stockWarehouse,self).write(vals)
+	
+
+    @api.multi
+    def switch_location(self,warehouse, new_reception_step=False, new_delivery_step=False):
+    	super(stockWarehouse,self).switch_location(warehouse, new_reception_step=new_reception_step, new_delivery_step=new_delivery_step)
+        location_obj = self.env['stock.location']
+        new_reception_step = new_reception_step or warehouse.reception_steps
+        if warehouse.reception_steps != new_reception_step:
+        	if new_reception_step == 'three_steps':
+        		if warehouse.qc_type_id:
+        			warehouse.qc_type_id.active= True
+        			
+	return True
+
