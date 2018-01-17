@@ -4,7 +4,7 @@
 from openerp.osv import fields, osv
 from openerp import models, fields, api, exceptions, _
 import openerp.addons.decimal_precision as dp
-
+from datetime import datetime,date,time
     	
 class MrpProduction(models.Model):
     _inherit='mrp.production'
