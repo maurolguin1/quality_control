@@ -71,16 +71,18 @@ class stockWarehouse(models.Model):
     	warehouse.wh_qc_stock_loc_id.quality_ck_loc=True
     	# code for add push method in routes
     	if warehouse.reception_steps=='three_steps':
-    		push_name=str(warehouse.code)+': Input -> Quality Control'
+    		push_name=str(warehouse.code)+': Quality Control -> Stock'
     		data_obj = self.env['ir.model.data']
     		mo_route = data_obj.get_object_reference('mrp', 'route_warehouse0_manufacture')[1]
     		if mo_route:
-    			quality_route=push_obj.search([('route_id','=',mo_route),('location_from_id','=',warehouse.wh_qc_stock_loc_id.id),('picking_type_id','=',warehouse.qc_type_id.id)])
+    			quality_route=push_obj.search([('route_id','=',mo_route),
+    							('location_from_id','=',warehouse.wh_qc_stock_loc_id.id),
+    							('picking_type_id','=',warehouse.qc_type_id.id)])
     			if not quality_route:
-    				push_obj.create({'name':push_name,'route_id':mo_route,'location_from_id':warehouse.wh_qc_stock_loc_id.id,
-    							'location_dest_id':warehouse.lot_stock_id.id,'picking_type_id':warehouse.qc_type_id.id})
-	
-    	#self.env['stock.location.path'].search([('location_from_id','=',warehouse.wh_qc_stock_loc_id.id),('location_dest_id','=',warehouse.lot_stock_id),('picking_type_id','=',warehouse.qc_type_id.id)])
+    				push_obj.create({'name':push_name,'route_id':mo_route,
+    						'location_from_id':warehouse.wh_qc_stock_loc_id.id,
+    						'location_dest_id':warehouse.lot_stock_id.id,
+    						'picking_type_id':warehouse.qc_type_id.id})
     	return warehouse
 
     @api.v7
@@ -96,24 +98,26 @@ class stockWarehouse(models.Model):
         max_sequence = max_sequence and max_sequence[0]['sequence'] or 0
         
     	quality_type = picking_type_obj.create(cr,uid,vals={
-            'name': _('Quality Check'),
-            'warehouse_id': warehouse.id,
-            'code': 'internal',
-            'use_create_lots': False,
-            'use_existing_lots': True,
-            'sequence_id': int_seq_id,
-            'default_location_src_id': warehouse.wh_output_stock_loc_id.id,
-            'default_location_dest_id': warehouse.lot_stock_id.id,
-            'sequence': max_sequence + 2,
-            'active':warehouse.reception_steps=='three_steps',
-            'color': warehouse.int_type_id.color},context=context)
+					    'name': _('Quality Check'),
+					    'warehouse_id': warehouse.id,
+					    'code': 'internal',
+					    'use_create_lots': False,
+					    'use_existing_lots': True,
+					    'sequence_id': int_seq_id,
+					    'default_location_src_id': warehouse.wh_output_stock_loc_id.id,
+					    'default_location_dest_id': warehouse.lot_stock_id.id,
+					    'sequence': max_sequence + 2,
+					    'active':warehouse.reception_steps=='three_steps',
+					    'color': warehouse.int_type_id.color},context=context)
     	return super(stockWarehouse, self).write(cr, uid, warehouse.id, vals={'qc_type_id':quality_type}, context=context)
 	
     @api.multi
     def write(self,vals):
     	for warehouse in self:
+    	    warehouse.wh_qc_stock_loc_id.quality_ck_loc=True
 	    active_wh= True if vals.get('reception_steps') == 'three_steps' else False
-    	    if not warehouse.qc_type_id:
+    	    wh_qc_type_id=warehouse.qc_type_id
+    	    if not wh_qc_type_id:
     	    	seq_obj = self.env['ir.sequence']
         	picking_type_obj = self.env['stock.picking.type']
         	#create new sequences
@@ -124,17 +128,18 @@ class stockWarehouse(models.Model):
         	max_sequence = max_sequence and max_sequence[0]['sequence'] or 0
         
     	    	quality_type = picking_type_obj.create({
-		    'name': _('Quality Check'),
-		    'warehouse_id': warehouse.id,
-		    'code': 'internal',
-		    'use_create_lots': False,
-		    'use_existing_lots': True,
-		    'sequence_id': int_seq_id.id,
-		    'default_location_src_id': warehouse.wh_output_stock_loc_id.id,
-		    'default_location_dest_id': warehouse.lot_stock_id.id,
-		    'sequence': max_sequence + 2,
-		    'active':active_wh,
-		    'color': warehouse.int_type_id.color})
+					    'name': _('Quality Check'),
+					    'warehouse_id': warehouse.id,
+					    'code': 'internal',
+					    'use_create_lots': False,
+					    'use_existing_lots': True,
+					    'sequence_id': int_seq_id.id,
+					    'default_location_src_id': warehouse.wh_output_stock_loc_id.id,
+					    'default_location_dest_id': warehouse.lot_stock_id.id,
+					    'sequence': max_sequence + 2,
+					    'active':active_wh,
+					    'color': warehouse.int_type_id.color})
+	    	wh_qc_type_id=quality_type
 	    	vals.update({'qc_type_id':quality_type.id})
 	    if warehouse.qc_type_id:
 		if vals.get('reception_steps') != 'three_steps':
@@ -151,24 +156,28 @@ class stockWarehouse(models.Model):
             # code for Update push method in routes 
             push_obj=self.env['stock.location.path']    
 	    if vals.get('reception_steps')=='three_steps':
-    		push_name=str(warehouse.code)+': Input -> Quality Control'
+    		push_name=str(warehouse.code)+': Quality Control -> Stock'
     		data_obj = self.env['ir.model.data']
     		mo_route = data_obj.get_object_reference('mrp', 'route_warehouse0_manufacture')[1]
     		if mo_route:
-    			quality_route=push_obj.search([('route_id','=',mo_route),('location_from_id','=',warehouse.wh_qc_stock_loc_id.id),('picking_type_id','=',warehouse.qc_type_id.id)])
+    			quality_route=push_obj.search([('route_id','=',mo_route),('active','=',False),
+    						('location_from_id','=',warehouse.wh_qc_stock_loc_id.id),
+    						('picking_type_id','=',warehouse.qc_type_id.id)])
     			if not quality_route:
     				push_obj.create({'name':push_name,'route_id':mo_route,
     						'location_from_id':warehouse.wh_qc_stock_loc_id.id, 							'location_dest_id':warehouse.lot_stock_id.id,
-    						'picking_type_id':warehouse.qc_type_id.id})
+    						'picking_type_id':wh_qc_type_id.id})
 			else:
 				quality_route.active=True
 	    elif warehouse.reception_steps != 'three_steps' or vals.get('reception_steps') !='three_steps':
 		data_obj = self.env['ir.model.data']
     		mo_route = data_obj.get_object_reference('mrp', 'route_warehouse0_manufacture')[1]
     		if mo_route:
-    			quality_route=push_obj.search([('route_id','=',mo_route),('location_from_id','=',warehouse.wh_qc_stock_loc_id.id),('picking_type_id','=',warehouse.qc_type_id.id)])	    
+    			quality_route=push_obj.search([('route_id','=',mo_route),
+    						('location_from_id','=',warehouse.wh_qc_stock_loc_id.id),
+    						('picking_type_id','=',warehouse.qc_type_id.id)])	    
 			if quality_route:
-				quality_route.active=True
+				quality_route.active=False
 
 	return super(stockWarehouse,self).write(vals)
 	
@@ -182,6 +191,12 @@ class stockWarehouse(models.Model):
         	if new_reception_step == 'three_steps':
         		if warehouse.qc_type_id:
         			warehouse.qc_type_id.active= True
-        			
+        		if warehouse.wh_qc_stock_loc_id:
+        			warehouse.wh_qc_stock_loc_id.active= True
+        	else:
+        		if warehouse.qc_type_id:
+        			warehouse.qc_type_id.active= False
+			if warehouse.wh_qc_stock_loc_id:
+				warehouse.wh_qc_stock_loc_id.active=False
 	return True
 

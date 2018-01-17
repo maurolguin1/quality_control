@@ -33,5 +33,11 @@
     "demo": [
         "demo/quality_control_demo.xml",
     ],
-    "installable": True,
+    'test': [],
+    'qweb': [],
+    'installable': True,
+    'auto_install': False,
+    'application': True,
 }
+
+
